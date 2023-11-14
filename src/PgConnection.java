@@ -9,49 +9,35 @@ public class PgConnection {
     private Connection connection;
     private ResultSet lastResultSet;
 
-    public PgConnection() {
-        connection = Connect();
-        // System.out.println("Connected to db");
+    public PgConnection() throws SQLException {
+        connection = connect();
     }
 
-    public Connection Connect() {
+    public Connection connect() throws SQLException {
         Connection conn;
-        PropertiesHandler propFile = new PropertiesHandler("connection");
+        PropertiesHandler props = new PropertiesHandler("connection");
 
-        String url = MessageFormat.format("jdbc:postgresql://{0}/{1}", propFile.Get("host"), propFile.Get("name"));
-        String user = propFile.Get("user");
-        String passwd = propFile.Get("passwd");
+        String url = MessageFormat.format("jdbc:postgresql://{0}/{1}", props.get("host"), props.get("name"));
+        String user = props.get("user");
+        String passwd = props.get("passwd");
 
-        try {
-            conn = DriverManager.getConnection(url, user, passwd);
-            return conn;
-        } 
-        catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
+        conn = DriverManager.getConnection(url, user, passwd);
+        return conn;
     }
 
-    public Boolean ExecuteQuery(String query) {
+    public void executeQuery(String query) throws SQLException {
         String queryType = query.split(" ")[0].toUpperCase();
-        // System.out.println(MessageFormat.format("Query: {0} ", query));
         Statement state;
-
-        try {
-            state = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            if (queryType.equals("SELECT")) {
-                ResultSet result = state.executeQuery(query);
-                lastResultSet = result;
-            }
-            else state.execute(query);
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+        state = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        if (queryType.equals("SELECT")) {
+            ResultSet result = state.executeQuery(query);
+            lastResultSet = result;
         }
+        else state.execute(query);
+
     }
 
-    public ResultSet GetLastRS() {
+    public ResultSet getLastRS() {
         try {
             return lastResultSet;
         } catch (Exception e) {

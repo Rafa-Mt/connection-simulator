@@ -10,15 +10,12 @@ public class PropertiesHandler {
         dir = MessageFormat.format("src/properties/{0}.properties", fileName);
     }    
 
-    public String Get(String key){
-        InputStream input;
-        Properties file = new Properties();
-        String value;
-
-        try { 
-            input = new FileInputStream(dir);
+    public String get(String key){         
+         try { 
+            InputStream input = new FileInputStream(dir);
+            Properties file = new Properties();
             file.load(input); 
-            value = file.getProperty(key);
+            String value = file.getProperty(key);
             input.close();
             return value;
         } 
@@ -28,8 +25,8 @@ public class PropertiesHandler {
         }
     }
 
-    public String Get(String key, Object[] args) {
-        String rawValue = Get(key);
+    public String get(String key, Object[] args) {
+        String rawValue = get(key);
         return MessageFormat.format(rawValue, args);
     }
 }
